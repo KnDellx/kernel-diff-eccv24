@@ -65,6 +65,7 @@ class BlurDataset(Dataset):
 		image_size = 256 ,
 		kernel_size = 64,
 		kernel_files = [],
+		random_crop = True,
 		augment_horizontal_flip = True,
 		normalize = True,
 		max_intensity = 1.0
@@ -82,11 +83,18 @@ class BlurDataset(Dataset):
 				if isfile(join(folder,f)):
 					self.paths.append(join(folder,f))
 		
-		self.transform = T.Compose([
-			T.RandomResizedCrop(image_size),
-			T.RandomHorizontalFlip() if augment_horizontal_flip else nn.Identity(),
-			T.ToTensor()
-		])
+		if random_crop:
+			self.transform = T.Compose([
+				T.RandomResizedCrop(image_size),
+				T.RandomHorizontalFlip() if augment_horizontal_flip else nn.Identity(),
+				T.ToTensor()
+			])
+		else:
+			# used for testing images
+			self.transform = T.Compose([
+				T.RandomCrop(256), 
+				T.ToTensor()])
+
 		if len(kernel_files) > 0:
 			self.kernel_list = np.load(kernel_files[0])
 			for idx in range(1,len(kernel_files)):

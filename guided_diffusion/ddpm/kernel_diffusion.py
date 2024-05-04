@@ -142,10 +142,7 @@ class KernelDiffusion(GaussianDiffusion):
 		return x_hat, img, imgs
 
 	def reverse_diffusion_step(self, k, y, t):
-		if self.unconditional_model:
-			preds = self.model_predictions(k, None, t)
-		else:
-			preds = self.model_predictions(k , y, t)
+		preds = self.model_predictions(k , y, t)
 		k_start = preds.pred_x_start
 
 		model_mean, _, model_log_variance = self.q_posterior(k_start, k, t )		
@@ -190,7 +187,7 @@ class KernelDiffusion(GaussianDiffusion):
 		return k
 
 	def sample_with_gradient(self, y, **kwargs):
-		step_size = kwargs['step_size'] if 'step_size' in kwargs else 0.1
+		step_size = kwargs['step_size'] if 'step_size' in kwargs else 0.04
 		max_iters = kwargs['max_iters'] if 'max_iters' in kwargs else 20
 		sparsity = kwargs['sparsity'] if 'sparsity' in kwargs else 1e-4
 		rho0 = kwargs['rho0'] if 'rho0' in kwargs else 1e3
@@ -267,11 +264,10 @@ class DeblurWithDiffusion(nn.Module):
 	1. self.kernel_diffusion samples the kernel "k" from the conditional distribution p(k|y)
 	2. self.deblur_with_kernel plugs the kernel into a non-blind solver which gives you a nice deblurred image.   
 	"""
-	def __init__(self, model, nb_solver, use_gradient = False, unconditional_model = False):
+	def __init__(self, model, nb_solver, use_gradient = False):
 		super().__init__()
 		self.kernel_diffusion = KernelDiffusion(model, nb_solver, image_size = 256, 
-		gradient_step_in_sampling= use_gradient,
-		unconditional_model = unconditional_model)
+		gradient_step_in_sampling= use_gradient)
 		
 	
 	def deblur(self, y, *args, **kwargs):
