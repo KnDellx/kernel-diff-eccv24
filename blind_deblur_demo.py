@@ -79,14 +79,18 @@ if __name__ == '__main__':
 
 	for idx, data in enumerate(dataloader):
 		gt, blur, k =  to(data, device)
-		print(blur.dtype)
 
 		x_hat, k_hat, k_start_list = kernel_diff.deblur(blur)
 
 
 		curr_out_dir = args.output_dir + '/'+str(idx).zfill(2)+'/'
 		os.makedirs(curr_out_dir, exist_ok=True)
+		
 		cv2.imwrite(curr_out_dir+'blur.png', torch_to_im(blur))
 		cv2.imwrite(curr_out_dir+'gt.png', torch_to_im(gt))
 		cv2.imwrite(curr_out_dir+'k.png', torch_to_k(k))
-		break
+
+		cv2.imwrite(curr_out_dir+'result_x.png', torch_to_im(x_hat))
+		cv2.imwrite(curr_out_dir+'result_k.png', torch_to_k(k_hat))
+		
+		

@@ -51,7 +51,6 @@ class KernelDiffusion(GaussianDiffusion):
 		sparse_weight = 1e-4,
 	):
 		super().__init__(model=model, image_size=image_size)
-		print('Initializing Kernel Diffusion')
 		self.nb_solver = nb_solver
 		if train_loss == 'l1':
 			self.train_loss = F.l1_loss
@@ -141,8 +140,30 @@ class KernelDiffusion(GaussianDiffusion):
 		
 		return x_hat, img, imgs
 
+	def model_predictions(self, x, y, t, x_self_cond = None, clip_x_start = False):
+		model_output = self.model(x, y, t, x_self_cond)
+		maybe_clip = partial(torch.clamp, min = -1., max = 1.) if clip_x_start else identity
+
+		if self.objective == 'pred_noise':
+			pred_noise = model_output
+			x_start = self.predict_start_from_noise(x, t, pred_noise)
+			x_start = maybe_clip(x_start)
+
+		elif self.objective == 'pred_x0':
+			x_start = model_output
+			x_start = maybe_clip(x_start)
+			pred_noise = self.predict_noise_from_start(x, t, x_start)
+
+		elif self.objective == 'pred_v':
+			v = model_output
+			x_start = self.predict_start_from_v(x, t, v)
+			x_start = maybe_clip(x_start)
+			pred_noise = self.predict_noise_from_start(x, t, x_start)
+
+		return ModelPrediction(pred_noise, x_start)
+
 	def reverse_diffusion_step(self, k, y, t):
-		preds = self.model_predictions(k , y, t)
+		preds = self.model_predictions(k, y, t)
 		k_start = preds.pred_x_start
 
 		model_mean, _, model_log_variance = self.q_posterior(k_start, k, t )		
@@ -203,6 +224,7 @@ class KernelDiffusion(GaussianDiffusion):
 		for t in reversed(range(0, self.num_timesteps)):
 			batched_t = torch.full((batch,), t, device = device, dtype = torch.long)
 			k, y = self.clear_gradients(k, y)
+			
 			with torch.no_grad():
 				k_half_step, k_start = self.reverse_diffusion_step(k, y, batched_t)
 				k_start.requires_grad = True
@@ -267,7 +289,7 @@ class DeblurWithDiffusion(nn.Module):
 	def __init__(self, model, nb_solver, use_gradient = False):
 		super().__init__()
 		self.kernel_diffusion = KernelDiffusion(model, nb_solver, image_size = 256, 
-		gradient_step_in_sampling= use_gradient)
+		gradient_step_in_sampling = use_gradient)
 		
 	
 	def deblur(self, y, *args, **kwargs):
