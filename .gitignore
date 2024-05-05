@@ -1,4 +1,4 @@
 *.pt
 *.pth
-*.png
+data/output/*/*.png
 */__pycache__/*

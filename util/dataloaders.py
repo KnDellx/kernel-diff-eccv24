@@ -82,7 +82,7 @@ class BlurDataset(Dataset):
 			for f in listdir(folder):
 				if isfile(join(folder,f)):
 					self.paths.append(join(folder,f))
-		
+		self.paths.sort()
 		if random_crop:
 			self.transform = T.Compose([
 				T.RandomResizedCrop(image_size),
