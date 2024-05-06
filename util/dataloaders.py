@@ -64,7 +64,7 @@ class BlurDataset(Dataset):
 		folder_list,
 		image_size = 256 ,
 		kernel_size = 64,
-		kernel_files = [],
+		kernel_list = [],
 		random_crop = True,
 		augment_horizontal_flip = True,
 		normalize = True,
@@ -95,13 +95,8 @@ class BlurDataset(Dataset):
 				T.RandomCrop(256), 
 				T.ToTensor()])
 
-		if len(kernel_files) > 0:
-			self.kernel_list = np.load(kernel_files[0])
-			for idx in range(1,len(kernel_files)):
-				self.kernel_list = np.concatenate((self.kernel_list, np.load(kernel_files[idx])), axis=0)
-		else:
-			self.kernel_list = []
-
+		self.kernel_list = kernel_list
+		
 	def __len__(self):
 		return len(self.paths)
 

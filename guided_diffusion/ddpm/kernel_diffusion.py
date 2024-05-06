@@ -57,12 +57,12 @@ class KernelDiffusion(GaussianDiffusion):
 		else:
 			self.train_loss = F.mse_loss
 		
-
 		self.ks = model.kernel_size
 		# Blur pad and crop operators
 		self.pad = nn.ReflectionPad2d((self.ks,self.ks,self.ks,self.ks))
 		self.crop = lambda x: x[:,:,self.ks:-self.ks,self.ks:-self.ks]
 		self.sample_loop = self.p_sample_loop if not gradient_step_in_sampling else self.sample_with_gradient 
+		self.sample = self.p_sample_loop ## Used during validation 
 		self.l2_crop = lambda x,y : F.mse_loss(x, y)
 		self.l1_prior = lambda x: torch.norm(x,1)/(x.size(1)*x.size(2)*x.size(3))
 		self.sparse_weight = sparse_weight
@@ -74,7 +74,6 @@ class KernelDiffusion(GaussianDiffusion):
 		k_clip = torch.clip(self.unnormalize(k), 0, np.inf)
 		k_out  = torch.div(k_clip, torch.sum(k_clip, (1,2,3), keepdim = True)) 
 		return k_out
-
 
 	def blur(self, gt_hat, x_hat, normalize = True):
 		if normalize:
@@ -120,6 +119,32 @@ class KernelDiffusion(GaussianDiffusion):
 		self.nb_solver.zero_grad(); self.model.zero_grad()
 		return k, y
 
+
+	@torch.no_grad()
+	def p_mean_variance(self, x, y, t, x_self_cond = None, clip_denoised = True):
+		preds = self.model_predictions(x, y, t)
+		x_start = preds.pred_x_start
+
+		if clip_denoised:
+			x_start.clamp_(-1., 1.)
+
+		model_mean, posterior_variance, posterior_log_variance = self.q_posterior(x_start = x_start, x_t = x, t = t)
+		return model_mean, posterior_variance, posterior_log_variance, x_start
+	 
+	@torch.no_grad()
+	def p_sample(self, x, y, t: int, x_self_cond = None, cond_fn=None, guidance_kwargs=None):
+		b, *_, device = *x.shape, x.device
+		batched_times = torch.full((b,), t, device = x.device, dtype = torch.long)
+		model_mean, variance, model_log_variance, x_start = self.p_mean_variance(
+			x = x, y = y, t = batched_times, x_self_cond = x_self_cond, clip_denoised = True
+		)
+		if exists(cond_fn) and exists(guidance_kwargs):
+			model_mean = self.condition_mean(cond_fn, model_mean, variance, x, batched_times, guidance_kwargs)
+		
+		noise = torch.randn_like(x) if t > 0 else 0. # no noise if t == 0
+		pred_img = model_mean + (0.5 * model_log_variance).exp() * noise
+		return pred_img, x_start
+
 	def p_sample_loop(self, y, return_all_timesteps = False, cond_fn=None, guidance_kwargs=None):
 		batch, device = y.size(0), self.betas.device
 		y = self.normalize(y)
@@ -134,7 +159,6 @@ class KernelDiffusion(GaussianDiffusion):
 				img, x_start = self.p_sample(img, y, t)
 				imgs.append(x_start)
 
-		img = self.converge_gradient_descent(y, img, max_iters = 100)
 		ret = img if not return_all_timesteps else torch.stack(imgs, dim = 1)
 		x_hat = self.deblur(y, img, True)
 		

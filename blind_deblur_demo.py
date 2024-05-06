@@ -50,7 +50,7 @@ def to(data, device):
 	
 
 if __name__ == '__main__':
-	np.random.seed(578)
+	np.random.seed(529)
 	warnings.filterwarnings("ignore")
 
 	parser = argparse.ArgumentParser(description='script arguments')
@@ -93,5 +93,4 @@ if __name__ == '__main__':
 		cv2.imwrite(curr_out_dir+'result_x.png', torch_to_im(x_hat))
 		cv2.imwrite(curr_out_dir+'result_k.png', torch_to_k(k_hat))
 		
-		if idx == 2:
-			break
+	

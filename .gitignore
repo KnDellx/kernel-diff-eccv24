@@ -1,4 +1,8 @@
 *.pt
 *.pth
 data/output/*/*.png
-*/__pycache__/*
+util/__pycache__/*
+motionblur/__pycache__/*
+results/*
+motionblur/__pycache__/*
+wandb/*
