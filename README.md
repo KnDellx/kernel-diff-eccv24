@@ -13,7 +13,7 @@ Blind deconvolution problems are severely ill-posed because neither the underlyi
 
 
 ### Pretrained Models here
-Download the following pretrained models to reproduce ther results from the paper here <br>
+Download the following pretrained models to reproduce the results from the paper here <br>
 [Kernel-Diff](https://drive.google.com/file/d/1yYonjCVMh6g-yYJISnY-WfgfPA4XXx43/view?usp=sharing) [Non-Blind Solver, DWDN](https://gitlab.mpi-klsb.mpg.de/jdong/dwdn/-/blob/master/model/model_DWDN.pt)
 
 Pretrained model file for realistic blur kernels, used for results on the RealBlur dataset in the supplementary material <br>
