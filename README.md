@@ -1,4 +1,4 @@
-# Kernel Diff: An Alternate Approach to Blind Deconvolution
+# Kernel Diff: An Alternate Approach to Blind Deconvolution, ECCV 2024
 Official PyTorch code and pre-trained models for [Kernel-Diff](https://arxiv.org/abs/2312.02319), accepted at ECCV 2024
 
 [![paper](https://img.shields.io/badge/arXiv-Paper-brightgreen)](https://arxiv.org/abs/2312.02319)
