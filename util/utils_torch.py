@@ -193,13 +193,18 @@ def sharpness(x):
 	return ((Dx.pow(2) + Dy.pow(2)).pow(0.5)).mean()
 
 	return x0
-
+'''
+transform the tensor into numpy img type
+'''
 def tens_to_img(xt, size=None):
 	if size is None:
+		# remove the batch dimension
 		x_np = np.squeeze(np.squeeze(xt.detach().cpu().numpy()))
 		if x_np.ndim == 3:
+			# for colorful image
 			return np.transpose(x_np, (1,2,0))
 		else:
+			# for grey image
 			return x_np
 	else:
 		x_np = np.squeeze(np.squeeze(xt.detach().cpu().numpy()))

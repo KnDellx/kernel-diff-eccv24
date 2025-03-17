@@ -1,0 +1,11 @@
+Looking in indexes: https://pypi.org/simple, https://pypi.ngc.nvidia.com
+Requirement already satisfied: torchvision in /data/root/miniconda3/envs/hirdiff/lib/python3.9/site-packages (0.13.1+cu113)
+Requirement already satisfied: typing-extensions in /data/root/miniconda3/envs/hirdiff/lib/python3.9/site-packages (from torchvision) (4.12.2)
+Requirement already satisfied: numpy in /data/root/miniconda3/envs/hirdiff/lib/python3.9/site-packages (from torchvision) (1.24.3)
+Requirement already satisfied: requests in /data/root/miniconda3/envs/hirdiff/lib/python3.9/site-packages (from torchvision) (2.32.3)
+Requirement already satisfied: torch==1.12.1 in /data/root/miniconda3/envs/hirdiff/lib/python3.9/site-packages (from torchvision) (1.12.1+cu113)
+Requirement already satisfied: pillow!=8.3.*,>=5.3.0 in /data/root/miniconda3/envs/hirdiff/lib/python3.9/site-packages (from torchvision) (11.1.0)
+Requirement already satisfied: charset-normalizer<4,>=2 in /data/root/miniconda3/envs/hirdiff/lib/python3.9/site-packages (from requests->torchvision) (3.4.1)
+Requirement already satisfied: idna<4,>=2.5 in /data/root/miniconda3/envs/hirdiff/lib/python3.9/site-packages (from requests->torchvision) (3.10)
+Requirement already satisfied: urllib3<3,>=1.21.1 in /data/root/miniconda3/envs/hirdiff/lib/python3.9/site-packages (from requests->torchvision) (2.3.0)
+Requirement already satisfied: certifi>=2017.4.17 in /data/root/miniconda3/envs/hirdiff/lib/python3.9/site-packages (from requests->torchvision) (2025.1.31)

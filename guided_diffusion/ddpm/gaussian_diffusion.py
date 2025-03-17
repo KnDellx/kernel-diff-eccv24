@@ -50,7 +50,7 @@ def convert_image_to_fn(img_type, image):
 		return image.convert(img_type)
 	return image
 
-
+# return a subclass of tuple with name
 ModelPrediction =  namedtuple('ModelPrediction', ['pred_noise', 'pred_x_start'])
 
 # normalization functions
