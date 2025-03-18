@@ -59,18 +59,27 @@ class KernelDiffusion(GaussianDiffusion):
 		
 		self.ks = model.kernel_size
 		# Blur pad and crop operators
+	    # use reflection pad to pad the image with the kernel size
 		self.pad = nn.ReflectionPad2d((self.ks,self.ks,self.ks,self.ks))
+		# use to remove the padding area 
 		self.crop = lambda x: x[:,:,self.ks:-self.ks,self.ks:-self.ks]
+		# use normal sampling or gradient guided sampling
 		self.sample_loop = self.p_sample_loop if not gradient_step_in_sampling else self.sample_with_gradient 
 		self.sample = self.p_sample_loop ## Used during validation 
+		# define the loss function
 		self.l2_crop = lambda x,y : F.mse_loss(x, y)
+		# realize the sparsity constraint in the kernel
 		self.l1_prior = lambda x: torch.norm(x,1)/(x.size(1)*x.size(2)*x.size(3))
+		# store the hyperparameter to constrain the sparsity strength
 		self.sparse_weight = sparse_weight
+	
+
 		
 	def unnormalize_kernel(self, k):
 		"""
 		The diffusion model out is usually between [-1,1], However the kernel input to non-blind solver needs to be normalized from 0 to 1
 		"""
+  		# transform the kernel into a physics-allowable kernel which is postive
 		k_clip = torch.clip(self.unnormalize(k), 0, np.inf)
 		k_out  = torch.div(k_clip, torch.sum(k_clip, (1,2,3), keepdim = True)) 
 		return k_out

@@ -78,8 +78,8 @@ if __name__ == '__main__':
 	kernel_diff = DeblurWithDiffusion(model, dwdn, use_gradient = True)
 	kernel_diff.to(device)
 	kernel_diff.eval()
-
-
+	print("The time schedule is:", kernel_diff.kernel_diffusion.t_seq)
+	import pdb; pdb.set_trace()
 	dataset = BlurDataset([args.input_dir], random_crop=False)
 	dataloader = tqdm(DataLoader(dataset, batch_size = 1, shuffle = False))
 
