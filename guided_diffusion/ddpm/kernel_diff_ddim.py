@@ -43,5 +43,6 @@ class KernelDiffusionDDIM(GaussianDiffusion):
         def predict_x_0(self, x_t, t, noise):
             return self.predict_start_from_noise(self, x_t, t, noise)
         def p_sample(self):
+            pass
             
             
