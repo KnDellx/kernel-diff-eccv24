@@ -91,34 +91,35 @@ def conv_kernel_symm(k, x):
 	return Ax, k_pad.view(1,h+2*h2,w+2*w2)
 
 def psf_to_otf(ker, size):
-    if ker.shape[2] % 2 == 0:
-    	ker = F.pad(ker, (0,1,0,1), "constant", 0)
-    psf = torch.zeros(size)
-    # circularly shift
-    centre = ker.shape[2]//2 + 1
-    psf[:, :, :centre, :centre] = ker[:, :, (centre-1):, (centre-1):]
-    psf[:, :, :centre, -(centre-1):] = ker[:, :, (centre-1):, :(centre-1)]
-    psf[:, :, -(centre-1):, :centre] = ker[:, :, : (centre-1), (centre-1):]
-    psf[:, :, -(centre-1):, -(centre-1):] = ker[:, :, :(centre-1), :(centre-1)]
-    # compute the otf
-    # otf = torch.rfft(psf, 3, onesided=False)
-    otf = torch.fft.fftn(psf, dim=[2,3])
-    return psf, otf
+	if ker.shape[2] % 2 == 0:
+		ker = F.pad(ker, (0,1,0,1), "constant", 0)
+
+	psf = torch.zeros(size)
+	# circularly shift
+	centre = ker.shape[2]//2 + 1
+	psf[:, :, :centre, :centre] = ker[:, :, (centre-1):, (centre-1):]
+	psf[:, :, :centre, -(centre-1):] = ker[:, :, (centre-1):, :(centre-1)]
+	psf[:, :, -(centre-1):, :centre] = ker[:, :, : (centre-1), (centre-1):]
+	psf[:, :, -(centre-1):, -(centre-1):] = ker[:, :, :(centre-1), :(centre-1)]
+	# compute the otf
+	# otf = torch.rfft(psf, 3, onesided=False)
+	otf = torch.fft.fftn(psf, dim=[2,3])
+	return psf, otf
 
 def fft_kernel(ker, out_tens):
-    if ker.shape[2] % 2 == 0:
-    	ker = F.pad(ker, (0,1,0,1), "constant", 0)
-    psf = torch.zeros_like(out_tens)
+	if ker.shape[2] % 2 == 0:
+		ker = F.pad(ker, (0,1,0,1), "constant", 0)
+	psf = torch.zeros_like(out_tens)
     # circularly shift
-    centre = ker.shape[2]//2 + 1
-    psf[:, :, :centre, :centre] = ker[:, :, (centre-1):, (centre-1):]
-    psf[:, :, :centre, -(centre-1):] = ker[:, :, (centre-1):, :(centre-1)]
-    psf[:, :, -(centre-1):, :centre] = ker[:, :, : (centre-1), (centre-1):]
-    psf[:, :, -(centre-1):, -(centre-1):] = ker[:, :, :(centre-1), :(centre-1)]
+	centre = ker.shape[2]//2 + 1
+	psf[:, :, :centre, :centre] = ker[:, :, (centre-1):, (centre-1):]
+	psf[:, :, :centre, -(centre-1):] = ker[:, :, (centre-1):, :(centre-1)]
+	psf[:, :, -(centre-1):, :centre] = ker[:, :, : (centre-1), (centre-1):]
+	psf[:, :, -(centre-1):, -(centre-1):] = ker[:, :, :(centre-1), :(centre-1)]
     # compute the otf
     # otf = torch.rfft(psf, 3, onesided=False)
-    otf = torch.fft.fftn(psf, dim=[2,3])
-    return otf
+	otf = torch.fft.fftn(psf, dim=[2,3])
+	return otf
 
 def p4ip_wrapper(y, k, M, p4ip, mode ='circular'):
 	device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
